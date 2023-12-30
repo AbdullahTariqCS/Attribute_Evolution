@@ -17,7 +17,8 @@ void World::initializePopulation(Creature& Predetor, Creature& Prey)
 	{
 		for (float y = 5.0f; y <= m_Attribs.dim.width; y += 10.0f)
 		{
-			m_Grass.add(Coords(x, y), (int)pow(m_Attribs.gridCellSize, 2) * m_Attribs.grassDensity);
+			int temp = pow(m_Attribs.gridCellSize, 2) * m_Attribs.grassDensity; 
+			m_Grass.add(Coords(x, y), (int)(pow(m_Attribs.gridCellSize, 2) * m_Attribs.grassDensity));
 		}
 	}
 }
@@ -35,6 +36,17 @@ void World::run()
 
 		window.clear();
 		iterate(); 
+		/*for (float x = 5.0f; x <= m_Attribs.dim.width; x += 10.0f)
+		{
+			for (float y = 5.0f; y <= m_Attribs.dim.width; y += 10.0f)
+			{
+				std::vector<sf::CircleShape> shape = m_Grass.find(Coords(x, y));
+				for (sf::CircleShape sh : shape)
+				{
+					window.draw(sh); 
+				}
+			}
+		}*/
 		for (auto itr = m_Prey.begin(); itr != m_Prey.end(); itr++)
 		{
 			Creature prey = *itr; 

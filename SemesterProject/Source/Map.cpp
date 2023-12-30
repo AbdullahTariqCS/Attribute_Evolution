@@ -81,9 +81,10 @@ void grass::Map::add(Coords coords, int num, float spanwTimeRemaining)
 	for (int i = 0; i < num; i++)
 	{
 		sf::CircleShape g; 
-		g.setRadius(3.0f); 
+		g.setRadius(0.1f); 
 		g.setFillColor(sf::Color::Green); 
 		g.setPosition(hf::randf(x1, x2), hf::randf(y1, y2));
+
 		m_Map[hash(coords)].push_back(g);
 	}
 
