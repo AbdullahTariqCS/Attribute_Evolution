@@ -13,14 +13,13 @@ void World::initializePopulation(Creature& Predetor, Creature& Prey)
 	{
 		pushBack(Predetor, Prey); 
 	}
-	for (float x = 5.0f; x <= m_Attribs.dim.width; x += 10.0f)
+	/*for (float x = 5.0f; x <= m_Attribs.dim.width; x += 10.0f)
 	{
 		for (float y = 5.0f; y <= m_Attribs.dim.width; y += 10.0f)
 		{
-			int temp = pow(m_Attribs.gridCellSize, 2) * m_Attribs.grassDensity; 
 			m_Grass.add(Coords(x, y), (int)(pow(m_Attribs.gridCellSize, 2) * m_Attribs.grassDensity));
 		}
-	}
+	}*/
 }
 
 void World::run()
@@ -75,12 +74,12 @@ void World::run()
 
 void World::iterate()
 {
-	std::unordered_map<Creature*, std::list<Creature>::iterator> inChase;//keeps track of the creature that are in chase
+	
 
 	std::list<Creature>::iterator currentPredetor = m_Predetor.begin(); 
 	std::list<Creature>::iterator currentPrey = m_Prey.begin(); 
 	std::list<grass::info>::iterator currentCell = m_DepletedGrass.begin();
-	std::list <std::pair<Creature*, Creature*>>::iterator currentChase;
+	std::list <std::pair<Creature*, Creature*>>::iterator currentChase = m_inChase.begin();
 
 	/*while (currentPredetor != m_Predetor.end() && currentPrey != m_Prey.end() && currentCell != m_DepletedGrass.end() && currentChase != m_inChase.end())
 	{
@@ -97,7 +96,7 @@ void World::iterate()
 	}*/
 	while (currentPredetor != m_Predetor.end())
 	{
-		bool condition = iteratePredetor(currentPredetor, inChase);
+		bool condition = iteratePredetor(currentPredetor);
 		if (!condition)
 		{
 			auto temp = std::next(currentPredetor);
@@ -117,7 +116,6 @@ void World::iterate()
 			auto temp = std::next(currentPrey);
 			m_Prey.erase(currentPrey);
 			currentPrey = temp;
-
 		}
 		else
 			currentPrey++;
@@ -184,6 +182,8 @@ bool World::iteratePrey(std::list<Creature>::iterator Prey)
 
 	if (prey.m_Energy.current == prey.m_Energy.min)
 	{
+		if (prey.m_InChase)
+			prey.m_InChase->m_InChase == nullptr;
 		return false;
 	}
 	
@@ -202,17 +202,18 @@ bool World::iteratePrey(std::list<Creature>::iterator Prey)
 	}
 
 	//initialize chase 
-	if (Predetor)
+	/*if (Predetor)
 	{
 		prey.m_InChase = Predetor; 
 		Predetor->m_InChase = &prey;
 		prey.changeDirProbability(prey, false, prey.m_Direction); 
+
 		m_inChase.push_back(std::make_pair(Predetor, &prey));
 
 		updatePosition(prey, Type::Prey); 
 		updatePosition(*Predetor, Type::Predetor);
-	}
-	else if(mate && prey.canMate() && mate->canMate())
+	}*/
+	if(mate && prey.canMate() && mate->canMate())
 	{
 		Creature newPray(m_Attribs.dim, m_Attribs.deltaTime); 
 		newPray.isChildOf(newPray, prey, *mate); 
@@ -226,7 +227,7 @@ bool World::iteratePrey(std::list<Creature>::iterator Prey)
 
 }
 
-bool World::iteratePredetor(std::list<Creature>::iterator Predetor, std::unordered_map<Creature*, std::list<Creature>::iterator>& inChase)
+bool World::iteratePredetor(std::list<Creature>::iterator Predetor)
 {
 	Creature& predetor = *Predetor;
 	if (predetor.dead)
@@ -240,8 +241,7 @@ bool World::iteratePredetor(std::list<Creature>::iterator Predetor, std::unorder
 		if (predetor.m_InChase)
 		{
 			predetor.m_InChase->m_InChase = nullptr;
-			inChase.erase(&predetor); 
-			inChase.erase(predetor.m_InChase);
+			
 		}
 		return false;
 	}
@@ -254,18 +254,19 @@ bool World::iteratePredetor(std::list<Creature>::iterator Predetor, std::unorder
 
 
 	//initiate chase
-	if (prey)
+	/*if (prey)
 	{
 		predetor.m_InChase = prey;
 		prey->m_InChase = &predetor;
+
 		predetor.changeDirProbability(predetor, true, predetor.m_Direction);
 
 		m_inChase.push_back(std::make_pair(&predetor, prey));
 		updatePosition(predetor, Type::Predetor); 
 		updatePosition(*prey, Type::Prey); 
 
-	}
-	else if (mate && predetor.canMate() && mate->canMate())
+	}*/
+	if (mate && predetor.canMate() && mate->canMate())
 	{
 		Creature newPredetor(m_Attribs.dim, m_Attribs.deltaTime);
 		Creature().isChildOf(newPredetor, predetor, *mate);
@@ -288,12 +289,16 @@ void World::iterateChase(std::list<std::pair<Creature*, Creature*>>::iterator in
 	Creature* Predetor = pair.first;
 	Creature* Prey = pair.second; 
 
+	if (Predetor->dead || Prey->dead)
+		return;
+
 	updatePosition(*Predetor, Type::Predetor); 
 	updatePosition(*Prey, Type::Prey); 
 	
 	if (Predetor->m_Energy.current < Predetor->m_Energy.min)
 	{
 		Predetor->dead = true;
+		Predetor->m_InChase = nullptr;
 		Prey->m_InChase = nullptr; 
 	}
 	else if (m_PredetorArea.hash(Predetor->m_Coords) == m_PredetorArea.hash(Prey->m_Coords))
@@ -301,7 +306,7 @@ void World::iterateChase(std::list<std::pair<Creature*, Creature*>>::iterator in
 		Predetor->changeDirProbability(*Predetor, true, Predetor->m_Direction); 
 		Predetor->changeEnergy(true, Predetor->m_DeltaEnergy.max);
 		Predetor->m_InChase = nullptr;
-
+		Prey->m_InChase = nullptr;
 		Prey->dead = true;
 
 	}

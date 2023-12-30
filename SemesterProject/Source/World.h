@@ -42,11 +42,10 @@ public:
 	void run(); 
 
 	void iterate(); 
-	void loadBuffers(std::vector<Coords> Grass, std::vector<Coords> Predetors, std::vector<Coords> Prey);
 
 private: 
 	bool iteratePrey(std::list<Creature>::iterator Prey);
-	bool iteratePredetor(std::list<Creature>:: iterator Predetor, std::unordered_map<Creature*, std::list<Creature>::iterator>& inChase);
+	bool iteratePredetor(std::list<Creature>:: iterator Predetor);
 
 	void iterateChase(std::list<std::pair<Creature*, Creature*>>::iterator inChase); 
 	void iterateGrass(std::list<grass::info>::iterator cell);

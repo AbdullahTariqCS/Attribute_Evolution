@@ -14,9 +14,9 @@ int main() {
     Creature Predetor;
     Creature Prey; 
 
-    Prey.setAttributes(Attrib(5.0f, 1.0f, 0.05), Attrib(10.0f, 0.0f, 0.05f), Attrib(0.03f, 0.01f, 0.05f), 0.3f, DirectionProb());
+    Prey.setAttributes(Attrib(4.0f, 0.5f, 0.05), Attrib(10.0f, 0.0f, 0.05f), Attrib(0.01f, 0.01f, 0.05f), 0.3f, DirectionProb());
 
-    Predetor.setAttributes(Attrib(5.0f, 1.0f, 0.05), Attrib(10.0f, 0.0f, 0.05f), Attrib(0.03f, 0.01f, 0.05f), 0.3f, DirectionProb());
+    Predetor.setAttributes(Attrib(4.0f, 0.5f, 0.05), Attrib(10.0f, 0.0f, 0.05f), Attrib(0.01f, 0.01f, 0.05f), 0.3f, DirectionProb());
     
     World world(attrib); 
     world.initializePopulation(Predetor, Prey); 
